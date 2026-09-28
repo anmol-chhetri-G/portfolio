@@ -1,4 +1,5 @@
 import { profile } from '../data/portfolio'
+import profilePhoto from '../assets/profile.jpg'
 
 export default function Hero() {
   return (
@@ -32,7 +33,7 @@ export default function Hero() {
 
         <div className="hero-visual" aria-hidden="true">
           <div className="arch">
-            <span className="monogram">AC</span>
+            <img src={profilePhoto} alt="" />
           </div>
           <div className="hero-card">
             <strong>Currently</strong>
