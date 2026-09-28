@@ -4,7 +4,7 @@ export default function Skills() {
   return (
     <section id="skills" data-reveal>
       <div className="shell">
-        <div className="kicker">03 · skills & certs</div>
+        <div className="kicker">04 · skills & certs</div>
         <h2>Tools of the trade.</h2>
         <div className="skills-grid">
           {profile.skills.map((group) => (
@@ -25,7 +25,16 @@ export default function Skills() {
         </h2>
         <ul className="cert-list">
           {profile.certs.map((cert) => (
-            <li key={cert}>{cert}</li>
+            <li key={cert.name}>
+              {cert.url ? (
+                <a href={cert.url} target="_blank" rel="noreferrer">
+                  {cert.name} ↗
+                </a>
+              ) : (
+                cert.name
+              )}
+              {cert.issuer && <span className="cert-issuer">{cert.issuer}</span>}
+            </li>
           ))}
         </ul>
       </div>

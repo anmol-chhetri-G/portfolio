@@ -520,6 +520,103 @@ h2 {
   color: var(--accent);
 }
 
+.cert-list li a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cert-list li a:hover {
+  color: var(--accent-dark);
+}
+
+.cert-issuer {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================
+   Experience
+   ============================================================ */
+.job {
+  border-top: 1px solid var(--line);
+  padding: 32px 0;
+}
+
+.job-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.job h3 {
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.job-period {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.job-org {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent-dark);
+}
+
+.job ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   Tinkering — small external-link rows under Work
+   ============================================================ */
+.tinker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.tinker-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: var(--panel);
+}
+
+.tinker-list li a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.tinker-list li a:hover {
+  color: var(--accent-dark);
+}
+
+.tinker-list li span {
+  color: var(--muted);
+}
+
 /* ============================================================
    Contact / Footer (footer is the one dark navy accent)
    ============================================================ */
@@ -625,6 +722,15 @@ footer {
 }
 
 @media (max-width: 800px) {
+  .nav-inner {
+    font-size: 12px;
+    padding: 14px 16px;
+  }
+
+  .nav a {
+    margin-left: 14px;
+  }
+
   .hero-grid {
     grid-template-columns: 1fr;
     gap: 48px;

@@ -4,7 +4,7 @@ export default function Contact() {
   return (
     <section id="contact" className="contact" data-reveal>
       <div className="shell">
-        <div className="kicker">04 · contact</div>
+        <div className="kicker">05 · contact</div>
         <h2>Let&apos;s talk security.</h2>
         <div className="contact-actions">
           <a className="btn btn-primary" href={`mailto:${profile.email}`}>

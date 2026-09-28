@@ -5,7 +5,7 @@ export default function Work() {
   return (
     <section id="work" data-reveal>
       <div className="shell">
-        <div className="kicker">02 · work</div>
+        <div className="kicker">03 · work</div>
         <h2>Projects built to understand attackers.</h2>
         {profile.projects.map((project, i) => (
           <article className="project" key={project.slug}>
@@ -28,6 +28,17 @@ export default function Work() {
             </div>
           </article>
         ))}
+        <h2 style={{ marginTop: 64, fontSize: 24 }}>Tinkering</h2>
+        <ul className="tinker-list">
+          {profile.tinkering.map((item) => (
+            <li key={item.title}>
+              <a href={item.repo} target="_blank" rel="noreferrer">
+                {item.title} ↗
+              </a>
+              <span>{item.note}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

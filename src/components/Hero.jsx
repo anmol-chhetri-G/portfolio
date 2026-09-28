@@ -5,7 +5,7 @@ export default function Hero() {
     <header className="hero" id="top">
       <div className="shell hero-grid">
         <div>
-          <div className="badge">open to security internships</div>
+          <div className="badge">soc analyst intern · security researcher</div>
           <p className="hero-eyebrow">Hello, I&apos;m</p>
           <h1>
             Anmol Singh <span>Chhetri</span>
@@ -36,9 +36,9 @@ export default function Hero() {
           </div>
           <div className="hero-card">
             <strong>Currently</strong>
-            BSc Ethical Hacking
+            SOC Analyst Intern · Cybanext
             <br />
-            SIEM triage · Python
+            BSc Ethical Hacking
           </div>
         </div>
       </div>

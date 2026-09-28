@@ -10,8 +10,7 @@ export const profile = {
   email: 'anmolsinghchetri34@gmail.com',
   phone: '+977 9800532114',
   github: 'https://github.com/anmol-chhetri-G',
-  // TODO: replace with your actual profile URL
-  linkedin: 'https://www.linkedin.com/',
+  linkedin: 'https://www.linkedin.com/in/anmol-chhetri-01408833a/',
   summary:
     'I take an integrated approach to security — bridging offensive testing and defensive response. Deep-dive incident analysis and alert triage in Splunk, Elastic, and Wazuh, backed by hands-on practice in network reconnaissance and web vulnerability testing.',
   education: [
@@ -24,6 +23,28 @@ export const profile = {
       title: 'High School',
       place: 'Adarsh Madhyamik Vidhyalaya, Nepalgunj',
       period: '2022 – 2024',
+    },
+  ],
+  experience: [
+    {
+      role: 'Security Operations Center Analyst',
+      org: 'Cybanext Technologies',
+      type: 'Internship',
+      period: 'Sep 2026 – Present',
+      location: 'Remote',
+      points: [
+        'Security Operations Center monitoring — alert triage and security event tracking.',
+      ],
+    },
+    {
+      role: 'Security Researcher',
+      org: 'Independent Research',
+      type: 'Self-employed',
+      period: 'Aug 2026 – Present',
+      location: 'Remote',
+      points: [
+        'Independent research across API security, web application testing, and vulnerability assessment.',
+      ],
     },
   ],
   skills: [
@@ -39,10 +60,19 @@ export const profile = {
     { label: 'Systems', items: ['Linux', 'Windows', 'Cross-platform tooling'] },
   ],
   certs: [
-    'Certified Cybersecurity Foundations (CORE)',
-    'Certified Red Team Operations Manager (CRTOM)',
-    'CAPIJ — Certified API Hacking Junior',
-    'HackAstra Finalist — Ranked 12th',
+    {
+      name: 'Certified Multi-Cloud Blue Team Analyst (MCBTA)',
+      issuer: 'Cyber Warfare Labs',
+      url: 'https://labs.cyberwarfare.live/credential/achievement/6aa1e361ce6365c3b488ec7f',
+    },
+    {
+      name: 'Certified Cybersecurity Foundations (CORE)',
+      issuer: 'Hackviser',
+      url: 'https://hackviser.com/verify?id=HV-CORE-FVU4PC3K',
+    },
+    { name: 'Certified Red Team Operations Manager (CRTOM)', issuer: '', url: '' },
+    { name: 'CAPIJ — Certified API Hacking Junior', issuer: '', url: '' },
+    { name: 'HackAstra Finalist — Ranked 12th', issuer: '', url: '' },
   ],
   projects: [
     {
@@ -53,8 +83,7 @@ export const profile = {
       description:
         'A real-time intrusion detection system written in Python that monitors TCP/IP traffic and applies signature-based analysis to flag unauthorized network probes automatically. Built to learn what reconnaissance looks like from the defender’s side of the wire.',
       tags: ['Python', 'TCP/IP', 'Signature Analysis'],
-      // TODO: paste the repo URL, e.g. 'https://github.com/anmol-chhetri-G/network-ids'
-      repo: '',
+      repo: 'https://github.com/anmol-chhetri-G/python-intrusion-detection-system',
     },
     {
       slug: 'steganography',
@@ -64,8 +93,7 @@ export const profile = {
       description:
         'A Python application that hides messages inside images by manipulating least-significant bits, and extracts them back out without visibly altering the carrier. An exercise in how data exfiltration can hide in plain sight.',
       tags: ['Python', 'LSB', 'Cryptography'],
-      // TODO: paste the repo URL
-      repo: '',
+      repo: 'https://github.com/anmol-chhetri-G/steg-doc',
     },
     {
       slug: 'keylogger',
@@ -75,8 +103,7 @@ export const profile = {
       description:
         'A lab-environment keylogger using pynput for keystroke capture with OS detection across platforms. Built strictly for education: to understand the offensive monitoring techniques that endpoint defenders must detect and stop.',
       tags: ['Python', 'pynput', 'Recon'],
-      // TODO: paste the repo URL
-      repo: '',
+      repo: 'https://github.com/anmol-chhetri-G/Keylogger',
     },
     {
       slug: 'password-manager',
@@ -86,8 +113,20 @@ export const profile = {
       description:
         'A Python credential storage manager focused on secure handling fundamentals — a hands-on way to learn what separates careful secret management from the mistakes that lead to breaches.',
       tags: ['Python', 'Security', 'CLI'],
-      // TODO: paste the repo URL
-      repo: '',
+      repo: 'https://github.com/anmol-chhetri-G/Python-Password_manager',
+    },
+  ],
+  // Smaller builds that live only as repo links — no detail pages.
+  tinkering: [
+    {
+      title: 'hourglass',
+      note: 'Toy project',
+      repo: 'https://github.com/anmol-chhetri-G/hourglass',
+    },
+    {
+      title: 'Sylph',
+      note: 'Hobby project',
+      repo: 'https://github.com/anmol-chhetri-G/Sylph',
     },
   ],
 }

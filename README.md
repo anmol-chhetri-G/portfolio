@@ -22,11 +22,12 @@ npm run dev        # http://localhost:5173
 
 ## Verify before deploying
 
-`scripts/verify.mjs` runs 25 headless-browser checks: the 13×13 grid, the
+`scripts/verify.mjs` runs 29 headless-browser checks: the 13×13 grid, the
 live pulse (centre-first ordering, 0.65 → 1.3 scale range, opacity breathing),
-scroll reveal, reduced-motion support, SPA routing, the Cloudflare
-`_redirects` rule, and the SEO files (`robots.txt`, `sitemap.xml`). It needs
-two
+scroll reveal, experience + verified certifications + hobby repos,
+reduced-motion support, SPA routing (including the new source-repo links),
+the Cloudflare `_redirects` rule, and the SEO files (`robots.txt`,
+`sitemap.xml`). It needs two
 servers plus Playwright with a full Chromium build (the headless *shell*
 never fires `requestAnimationFrame`, which freezes every JS animation):
 

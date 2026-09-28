@@ -132,12 +132,38 @@ try {
   )
 
   // ---- B3. Scroll reveal ----------------------------------------------------
-  await page.evaluate(() => document.querySelector('#about').scrollIntoView({ block: 'start' }))
+  await page.evaluate(() => document.querySelector('#experience').scrollIntoView({ block: 'start' }))
   await page.waitForTimeout(1000)
   const revealed = await page.evaluate(() =>
-    document.querySelector('#about').classList.contains('in'),
+    document.querySelector('#experience').classList.contains('in'),
   )
-  check('scroll reveal activates sections', revealed, '#about.in')
+  check('scroll reveal activates sections', revealed, '#experience.in')
+
+  // ---- B4. Experience + certifications --------------------------------------
+  const content = await page.evaluate(() => ({
+    jobs: [...document.querySelectorAll('#experience .job h3')].map((h) => h.textContent),
+    certLinks: [...document.querySelectorAll('.cert-list li a')].map((a) => a.href),
+    tinkering: [...document.querySelectorAll('.tinker-list li a')].map((a) => a.href),
+  }))
+  check(
+    'experience section lists both roles',
+    content.jobs.length === 2 &&
+      content.jobs[0] === 'Security Operations Center Analyst' &&
+      content.jobs[1] === 'Security Researcher',
+    content.jobs.join(' | '),
+  )
+  check(
+    'certifications link to verifiable credentials',
+    content.certLinks.some((h) => h.includes('hackviser.com/verify')) &&
+      content.certLinks.some((h) => h.includes('labs.cyberwarfare.live/credential')),
+    `${content.certLinks.length} verified of 5 listed`,
+  )
+  check(
+    'tinkering row links both hobby repos',
+    content.tinkering.some((h) => h.endsWith('/hourglass')) &&
+      content.tinkering.some((h) => h.endsWith('/Sylph')),
+    content.tinkering.join(' | '),
+  )
 
   // ---- C. Animation semantics (deterministic, via the harness) --------------
   const harness = await browser.newPage()
@@ -214,12 +240,19 @@ try {
   const deepState = await deep.evaluate(() => ({
     h1: document.querySelector('h1')?.textContent,
     mounted: (document.getElementById('root')?.children.length ?? 0) > 0,
+    repo: document.querySelector('.detail .cta-row a')?.href ?? '',
   }))
   check('deep link responds 200', res.status() === 200, `HTTP ${res.status()}`)
   check(
     'deep link renders the project page',
     deepState.mounted && deepState.h1 === 'Network Intrusion Detection System',
     `h1 "${deepState.h1}"`,
+  )
+  check(
+    'project page links the source repo',
+    deepState.repo ===
+      'https://github.com/anmol-chhetri-G/python-intrusion-detection-system',
+    deepState.repo,
   )
 
   await deep.goto(`${PREVIEW}/projects/nope`, { waitUntil: 'networkidle' })

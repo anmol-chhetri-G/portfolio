@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 // page reload — and still work from /projects/* via the leading slash.
 const LINKS = [
   { to: '/#about', label: 'about' },
+  { to: '/#experience', label: 'experience' },
   { to: '/#work', label: 'work' },
   { to: '/#skills', label: 'skills' },
   { to: '/#contact', label: 'contact' },
