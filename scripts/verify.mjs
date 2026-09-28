@@ -12,14 +12,14 @@
  *
  * What it checks:
  *  A. Production page: grid renders 13x13, hero/projects copy, no console errors.
- *  B. The idle pulse is live (scale + opacity), and the cursor ripple flares
- *     dots near the pointer. Scroll reveal activates sections.
+ *  B. The idle pulse is live (scale + opacity). Scroll reveal activates sections.
  *  C. Animation semantics (deterministic, via tests/gridPulse.harness.html —
  *     the timeline is seeked, so no rAF dependence): centre ripples first,
  *     outer ring ~1s later, scale spans the configured [1.3, 0.65] range.
- *  D. prefers-reduced-motion holds the grid still and disables the ripple.
+ *  D. prefers-reduced-motion holds the grid still.
  *  E. SPA routing: deep links render, unknown slugs/routes are friendly.
- *  F. dist/_redirects ships so Cloudflare Pages serves deep links.
+ *  F. dist/_redirects ships so Cloudflare Pages serves deep links, and the
+ *     SEO files (robots.txt, sitemap.xml) ship too.
  */
 import { chromium } from 'playwright'
 import { readFile } from 'node:fs/promises'
@@ -45,15 +45,7 @@ function check(name, pass, detail = '') {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`)
 }
 
-// Inline scale of every dot (what animejs writes to el.style.transform).
-const readScales = (page) =>
-  page.evaluate(() =>
-    [...document.querySelectorAll('.dot')].map((d) => {
-      const m = /scale\(\s*([-\d.e]+)/.exec(d.style.transform)
-      return m ? parseFloat(m[1]) : 1
-    }),
-  )
-
+// Inline transform of every dot (what animejs writes to el.style.transform).
 const readTransforms = (page) =>
   page.evaluate(() => [...document.querySelectorAll('.dot')].map((d) => d.style.transform))
 
@@ -91,11 +83,7 @@ try {
     `${shape.columns} cols x ${shape.rows} rows`,
   )
   check('grid is a fixed fullscreen backdrop', shape.fixed, 'position: fixed')
-  check(
-    'hero renders the headline',
-    shape.heading === 'Breaking systems ethically to learn how to defend them.',
-    `h1 "${shape.heading}"`,
-  )
+  check('hero renders the headline', shape.heading === 'Anmol Singh Chhetri', `h1 "${shape.heading}"`)
   check(
     'four projects render',
     shape.projects.length === 4 &&
@@ -141,18 +129,6 @@ try {
     'production pulse also breathes opacity',
     live.opDistinct > 3,
     `${live.opDistinct} distinct opacity values`,
-  )
-
-  // ---- B2. Cursor ripple ----------------------------------------------------
-  // (640, 450) sits almost exactly on the centre dot of the fullscreen grid.
-  // The pulse peaks at 1.3, so anything far above that must be the ripple.
-  await page.mouse.move(640, 450)
-  await page.waitForTimeout(200)
-  const rippleMax = Math.max(...(await readScales(page)))
-  check(
-    'cursor ripple flares dots near the pointer',
-    rippleMax > 1.6,
-    `max scale ${rippleMax.toFixed(2)} after hover (pulse peaks at ${MAX_SCALE})`,
   )
 
   // ---- B3. Scroll reveal ----------------------------------------------------
@@ -231,14 +207,6 @@ try {
     before.length === COUNT && before.every((t, i) => t === after[i]),
     `${before.length} dots, none changed`,
   )
-  await still.mouse.move(640, 450)
-  await still.waitForTimeout(400)
-  const afterHover = await readTransforms(still)
-  check(
-    'reduced motion disables the cursor ripple too',
-    after.every((t, i) => t === afterHover[i]),
-    'no dot changed on hover',
-  )
 
   // ---- E. SPA routing ------------------------------------------------------
   const deep = await browser.newPage()
@@ -273,6 +241,24 @@ try {
     'dist/_redirects present for Cloudflare Pages',
     /\/\*\s+\/index\.html\s+200/.test(redirects),
     JSON.stringify(redirects.trim()),
+  )
+
+  // ---- G. SEO files ship in dist -------------------------------------------
+  let robots = ''
+  let sitemap = ''
+  try {
+    robots = await readFile(new URL('../dist/robots.txt', import.meta.url), 'utf8')
+    sitemap = await readFile(new URL('../dist/sitemap.xml', import.meta.url), 'utf8')
+  } catch {
+    /* handled by the checks below */
+  }
+  check('dist/robots.txt present', /User-agent: \*/.test(robots), robots.split('\n')[0] ?? '')
+  check(
+    'dist/sitemap.xml lists the project URLs',
+    ['network-ids', 'steganography', 'keylogger', 'password-manager'].every((slug) =>
+      sitemap.includes(`/projects/${slug}`),
+    ),
+    `${(sitemap.match(/<url>/g) ?? []).length} urls`,
   )
 
   check('production console is clean', errors.length === 0, errors.join(' | '))

@@ -1,4 +1,4 @@
-import { animate, createTimeline, stagger } from 'animejs'
+import { createTimeline, stagger } from 'animejs'
 
 /**
  * Shared defaults for the dot-grid pulse.
@@ -71,49 +71,5 @@ export function initGridPulse(target = '.dot', options = {}) {
     restart: () => timeline.restart(),
     /** Revert inline styles and stop the engine. Use this on unmount. */
     destroy: () => timeline.revert(),
-  }
-}
-
-/**
- * Cursor ripple: dots near the pointer flare up while the idle pulse keeps
- * running underneath. Short-lived tweens hand control back to the looping
- * timeline when they complete.
- *
- * @param {Element} container - Element containing the `.dot` nodes
- * @param {object} options - radius (px), boost (extra scale at point blank),
- *   duration (ms of the flare tween)
- * @returns {Function} Call to detach the listener and cancel pending frames.
- */
-export function initCursorRipple(container, options = {}) {
-  const { radius = 150, boost = 1.8, duration = 250 } = options
-  const dots = [...container.querySelectorAll('.dot')]
-  let raf = 0
-
-  const onMove = (event) => {
-    cancelAnimationFrame(raf)
-    raf = requestAnimationFrame(() => {
-      for (const dot of dots) {
-        const rect = dot.getBoundingClientRect()
-        const dist = Math.hypot(
-          event.clientX - (rect.left + rect.width / 2),
-          event.clientY - (rect.top + rect.height / 2),
-        )
-        if (dist < radius) {
-          const f = 1 - dist / radius
-          animate(dot, {
-            scale: 1 + f * boost,
-            opacity: 0.6 + f * 0.4,
-            duration,
-            ease: 'outQuad',
-          })
-        }
-      }
-    })
-  }
-
-  window.addEventListener('pointermove', onMove)
-  return () => {
-    window.removeEventListener('pointermove', onMove)
-    cancelAnimationFrame(raf)
   }
 }
