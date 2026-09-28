@@ -1,0 +1,517 @@
+/* ============================================================
+   Tokens
+   ============================================================ */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f8fa;
+  --text: #0b1220;
+  --text-muted: #5b6675;
+  --line: #e4e8ee;
+  --accent: #06b6d4;
+  --accent-ink: #ffffff;
+
+  --radius: 12px;
+  --gap: 0.75rem;
+  --dot-size: 8px;
+  --maxw: 68rem;
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* ============================================================
+   Reset & base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--bg-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ============================================================
+   Dot grid  (animation target — see src/lib/gridPulse.js)
+   ============================================================ */
+.dot-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--dot-cols, 13), 1fr);
+  gap: var(--gap);
+  justify-content: center;
+  width: 100%;
+}
+
+.dot {
+  display: block;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  background: var(--accent);
+  border-radius: 50%;
+  /* Initial scale is set inline per-dot to match the animation's minimum. */
+  will-change: transform;
+}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav__brand {
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.nav__link {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.nav__link:hover {
+  color: var(--text);
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: min(78vh, 40rem);
+  padding: 5rem 1.5rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* Fade the grid out towards the edges so the headline stays legible. */
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    #000 15%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(ellipse at center, #000 15%, transparent 72%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hero__content {
+  position: relative;
+  max-width: 44rem;
+  text-align: center;
+}
+
+.hero__eyebrow {
+  margin: 0 0 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero__title {
+  font-size: clamp(2.75rem, 8vw, 4.75rem);
+  font-weight: 700;
+}
+
+.hero__tagline {
+  margin: 1rem auto 0;
+  max-width: 34rem;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+}
+
+.hero__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+.section {
+  padding: 4.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.section__title {
+  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+/* ============================================================
+   Buttons & tags
+   ============================================================ */
+.button {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.button:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tag--muted {
+  opacity: 0.7;
+}
+
+/* ============================================================
+   About / timeline
+   ============================================================ */
+.about {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 2.5rem;
+}
+
+.about__meta {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 1px solid var(--line);
+  display: grid;
+  gap: 1.75rem;
+}
+
+.timeline__item {
+  position: relative;
+}
+
+.timeline__item::before {
+  content: "";
+  position: absolute;
+  left: -1.5625rem;
+  top: 0.45rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.timeline__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.timeline__role {
+  font-weight: 620;
+}
+
+.timeline__period {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.timeline__org {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+.timeline__item ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   Project cards
+   ============================================================ */
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  height: 100%;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.card__title {
+  font-weight: 650;
+  font-size: 1.1rem;
+}
+
+.card__blurb,
+.card__cta {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.card__tech {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.card__cta {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+/* ============================================================
+   Skills
+   ============================================================ */
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1.75rem;
+}
+
+.skills__label {
+  font-size: 0.95rem;
+  font-weight: 620;
+  margin-bottom: 0.6rem;
+}
+
+.skills__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   Contact & footer
+   ============================================================ */
+.contact__lead {
+  max-width: 34rem;
+  color: var(--text-muted);
+}
+
+.contact__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.footer {
+  max-width: var(--maxw);
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   Project detail page
+   ============================================================ */
+.page {
+  padding: 3.5rem 1.5rem 4.5rem;
+  flex: 1;
+}
+
+.backlink {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.backlink:hover {
+  color: var(--accent);
+}
+
+.page__title {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+}
+
+.page__lede {
+  margin-top: 0.75rem;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+}
+
+.page__tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+
+.page__body {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.page .hero__actions {
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+/* ============================================================
+   Motion preferences
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
