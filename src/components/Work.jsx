@@ -1,29 +1,34 @@
 import { Link } from 'react-router-dom'
-import { projects } from '../data/portfolio'
+import { profile } from '../data/portfolio'
 
 export default function Work() {
   return (
-    <section className="section" id="work">
-      <h2 className="section__title">Work</h2>
-
-      <ul className="cards">
-        {projects.map((project) => (
-          <li key={project.slug}>
-            <Link className="card" to={`/projects/${project.slug}`}>
-              <span className="card__title">{project.title}</span>
-              <span className="card__blurb">{project.blurb}</span>
-              <span className="card__tech">
-                {project.tech.map((tech) => (
-                  <span className="tag" key={tech}>
-                    {tech}
+    <section id="work" data-reveal>
+      <div className="shell">
+        <div className="kicker">02 · work</div>
+        <h2>Projects built to understand attackers.</h2>
+        {profile.projects.map((project, i) => (
+          <article className="project" key={project.slug}>
+            <div className="num">{String(i + 1).padStart(2, '0')}</div>
+            <div>
+              <h3>
+                <Link to={`/projects/${project.slug}`}>{project.title}</Link>
+              </h3>
+              <p>{project.blurb}</p>
+              <div className="tags">
+                {project.tags.map((tag) => (
+                  <span className="tag" key={tag}>
+                    {tag}
                   </span>
                 ))}
-              </span>
-              <span className="card__cta">Read more &rarr;</span>
-            </Link>
-          </li>
+              </div>
+              <Link className="more" to={`/projects/${project.slug}`}>
+                read more →
+              </Link>
+            </div>
+          </article>
         ))}
-      </ul>
+      </div>
     </section>
   )
 }

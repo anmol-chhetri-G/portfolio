@@ -46,14 +46,12 @@
 
       window.__harness = {
         /** Boot a grid + timeline, left paused so it can be seeked. */
-        setup({ grid = [13, 13], origin = 'center', scaleRange = [1.1, 0.75], loop = true, durationMs, staggerMs } = {}) {
+        setup(options = {}) {
           if (controller) { controller.destroy(); controller = null }
-          gridSize = grid
-          minScale = scaleRange[1]
+          gridSize = options.grid ?? [13, 13]
+          minScale = options.scaleRange ? options.scaleRange[1] : 0.65
           buildDots()
-          controller = initGridPulse(
-            '.dot', grid, origin, scaleRange, loop, durationMs, staggerMs,
-          )
+          controller = initGridPulse('.dot', options)
           return {
             count: dotEls.length,
             duration: controller.timeline.duration,

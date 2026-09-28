@@ -17,11 +17,14 @@ export default function App() {
         <Route
           path="*"
           element={
-            <main className="container page">
+            <main className="shell detail">
+              <div className="kicker">404</div>
               <h1>Page not found</h1>
-              <Link className="button button--primary" to="/">
-                Back home
-              </Link>
+              <div className="cta-row">
+                <Link className="btn btn-primary" to="/">
+                  Back home
+                </Link>
+              </div>
             </main>
           }
         />

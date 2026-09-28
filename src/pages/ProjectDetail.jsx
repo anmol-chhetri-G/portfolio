@@ -1,61 +1,60 @@
 import { Link, useParams } from 'react-router-dom'
-import { projects } from '../data/portfolio'
+import { profile } from '../data/portfolio'
 
 export default function ProjectDetail() {
   const { slug } = useParams()
-  const project = projects.find((item) => item.slug === slug)
+  const project = profile.projects.find((item) => item.slug === slug)
 
   // Unknown slugs (or a stale bookmark) shouldn't 500 or render a blank page.
   if (!project) {
     return (
-      <main className="container page">
+      <main className="shell detail">
+        <div className="kicker">project</div>
         <h1>Project not found</h1>
-        <p>
+        <p className="lede">
           No project matches <code>{slug}</code>.
         </p>
-        <Link className="button button--primary" to="/">
-          Back home
-        </Link>
+        <div className="cta-row">
+          <Link className="btn btn-primary" to="/">
+            Back home
+          </Link>
+        </div>
       </main>
     )
   }
 
   return (
-    <main className="container page">
-      <Link className="backlink" to="/#work">
-        &larr; All work
+    <main className="shell detail">
+      <Link className="more" to="/#work">
+        ← all work
       </Link>
 
-      <h1 className="page__title">{project.title}</h1>
-      <p className="page__lede">{project.blurb}</p>
+      <div className="kicker">project</div>
+      <h1>{project.title}</h1>
+      <p className="lede">{project.blurb}</p>
 
-      <div className="page__tags">
-        {project.tech.map((tech) => (
-          <span className="tag" key={tech}>
-            {tech}
+      <div className="tags">
+        {project.tags.map((tag) => (
+          <span className="tag" key={tag}>
+            {tag}
           </span>
         ))}
-        <span className="tag tag--muted">{project.year}</span>
       </div>
 
-      <p className="page__body">{project.description}</p>
+      <p className="detail-body">{project.description}</p>
 
-      <div className="hero__actions">
-        {project.repo && (
+      {project.repo && (
+        <div className="cta-row">
           <a
-            className="button button--primary"
+            className="btn btn-primary"
             href={project.repo}
+            target="_blank"
             rel="noreferrer"
           >
-            Source code
+            Source code ↗
           </a>
-        )}
-        {project.live && (
-          <a className="button" href={project.live} rel="noreferrer">
-            Live site
-          </a>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   )
 }

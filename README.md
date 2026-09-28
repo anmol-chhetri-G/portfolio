@@ -1,8 +1,10 @@
-# Portfolio
+# Portfolio — Anmol Singh Chhetri, Cybersecurity
 
-React + Vite single-page portfolio, deployed on Cloudflare Pages. The hero
-background is a 13×13 dot grid with a staggered centre-ripple pulse built on
-[animejs](https://animejs.com/) (`src/lib/gridPulse.js`).
+React + Vite single-page portfolio, deployed on Cloudflare Pages. Terminal /
+SOC aesthetic in `src/styles/global.css`. The hero background is a fullscreen
+13×13 dot grid running an animejs centre-ripple pulse
+(`src/lib/gridPulse.js`), with a cursor ripple that flares dots near the
+pointer. Sections fade in on scroll via a one-shot IntersectionObserver.
 
 ## Edit your content
 
@@ -19,9 +21,10 @@ npm run dev        # http://localhost:5173
 
 ## Verify before deploying
 
-`scripts/verify.mjs` runs 20 headless-browser checks: the 13×13 grid, the
-live ripple (centre-first ordering, 0.75 → 1.1 scale range), reduced-motion
-support, SPA routing, and the Cloudflare `_redirects` rule. It needs two
+`scripts/verify.mjs` runs 23 headless-browser checks: the 13×13 grid, the
+live pulse (centre-first ordering, 0.65 → 1.3 scale range, opacity breathing),
+the cursor ripple, scroll reveal, reduced-motion support, SPA routing, and the
+Cloudflare `_redirects` rule. It needs two
 servers plus Playwright with a full Chromium build (the headless *shell*
 never fires `requestAnimationFrame`, which freezes every JS animation):
 

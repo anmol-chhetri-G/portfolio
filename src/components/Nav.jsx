@@ -1,27 +1,29 @@
 import { Link } from 'react-router-dom'
-import { profile } from '../data/portfolio'
 
+// Router Links (not plain anchors) so section jumps never trigger a full
+// page reload — and still work from /projects/* via the leading slash.
 const LINKS = [
-  { id: 'about', label: 'About' },
-  { id: 'work', label: 'Work' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'contact', label: 'Contact' },
+  { to: '/#about', label: 'about' },
+  { to: '/#work', label: 'work' },
+  { to: '/#skills', label: 'skills' },
+  { to: '/#contact', label: 'contact' },
 ]
 
 export default function Nav() {
   return (
-    <header className="nav">
-      <Link className="nav__brand" to="/">
-        {profile.name}
-      </Link>
-
-      <nav className="nav__links" aria-label="Sections">
-        {LINKS.map((link) => (
-          <a className="nav__link" href={`/#${link.id}`} key={link.id}>
-            {link.label}
-          </a>
-        ))}
-      </nav>
-    </header>
+    <nav className="nav">
+      <div className="nav-inner">
+        <Link to="/#top" className="logo">
+          ~/anmol<span>$</span>
+        </Link>
+        <div>
+          {LINKS.map((link) => (
+            <Link key={link.to} to={link.to}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
   )
 }

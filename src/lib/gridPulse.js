@@ -1,15 +1,15 @@
-import { createTimeline, stagger } from 'animejs'
+import { animate, createTimeline, stagger } from 'animejs'
 
 /**
  * Shared defaults for the dot-grid pulse.
  * These live at module scope so React `useEffect` dependency arrays stay stable.
  */
 export const DEFAULT_GRID = [13, 13]
-export const DEFAULT_SCALE_RANGE = [1.1, 0.75]
 export const DEFAULT_ORIGIN = 'center'
-export const DEFAULT_STAGGER_MS = 200
-/** animejs' own default tween duration. */
-export const DEFAULT_DURATION_MS = 1000
+export const DEFAULT_SCALE_RANGE = [1.3, 0.65]
+export const DEFAULT_OPACITY_RANGE = [1, 0.35]
+export const DEFAULT_DURATION_MS = 800
+export const DEFAULT_STAGGER_MS = 130
 
 /** Number of dots in a [columns, rows] grid. */
 export function countDots([columns, rows]) {
@@ -23,28 +23,27 @@ export function prefersReducedMotion() {
 }
 
 /**
- * Creates a staggered, rippling grid animation.
+ * Creates the idle breathing pulse: a scale + opacity ripple that radiates
+ * outward from `origin`, then breathes back (loop + alternate).
  *
  * @param {string} target - CSS selector of the grid items (default: '.dot')
- * @param {Array<number>} gridDimensions - [columns, rows] (default: [13, 13])
- * @param {string} origin - Where the ripple starts: 'center' | 'first' | 'last' | 'edges' (default: 'center')
- * @param {Array<number>} scaleRange - [max scale, min scale] (default: [1.1, 0.75])
- * @param {boolean} loop - Whether the animation should loop continuously (default: true)
- * @param {number} durationMs - Tween duration per dot (default: 900)
- * @param {number} staggerMs - Delay between neighbouring dots (default: 200)
+ * @param {object} options - Overrides for grid, origin, scaleRange,
+ *   opacityRange, loop, durationMs, staggerMs (all default to the constants above)
  * @returns {{ timeline: object, play: Function, pause: Function, restart: Function, destroy: Function }}
  *          Controller exposing playback control. Always call `destroy()` on cleanup.
  */
-export function initGridPulse(
-  target = '.dot',
-  gridDimensions = DEFAULT_GRID,
-  origin = DEFAULT_ORIGIN,
-  scaleRange = DEFAULT_SCALE_RANGE,
-  loop = true,
-  durationMs = DEFAULT_DURATION_MS,
-  staggerMs = DEFAULT_STAGGER_MS,
-) {
-  const staggerOptions = { grid: gridDimensions, from: origin }
+export function initGridPulse(target = '.dot', options = {}) {
+  const {
+    grid = DEFAULT_GRID,
+    origin = DEFAULT_ORIGIN,
+    scaleRange = DEFAULT_SCALE_RANGE,
+    opacityRange = DEFAULT_OPACITY_RANGE,
+    loop = true,
+    durationMs = DEFAULT_DURATION_MS,
+    staggerMs = DEFAULT_STAGGER_MS,
+  } = options
+
+  const staggerOptions = { grid, from: origin }
 
   const timeline = createTimeline({
     loop,
@@ -57,6 +56,7 @@ export function initGridPulse(
     target,
     {
       scale: stagger(scaleRange, staggerOptions),
+      opacity: stagger(opacityRange, staggerOptions),
       duration: durationMs,
       ease: 'inOutQuad',
     },
@@ -71,5 +71,49 @@ export function initGridPulse(
     restart: () => timeline.restart(),
     /** Revert inline styles and stop the engine. Use this on unmount. */
     destroy: () => timeline.revert(),
+  }
+}
+
+/**
+ * Cursor ripple: dots near the pointer flare up while the idle pulse keeps
+ * running underneath. Short-lived tweens hand control back to the looping
+ * timeline when they complete.
+ *
+ * @param {Element} container - Element containing the `.dot` nodes
+ * @param {object} options - radius (px), boost (extra scale at point blank),
+ *   duration (ms of the flare tween)
+ * @returns {Function} Call to detach the listener and cancel pending frames.
+ */
+export function initCursorRipple(container, options = {}) {
+  const { radius = 150, boost = 1.8, duration = 250 } = options
+  const dots = [...container.querySelectorAll('.dot')]
+  let raf = 0
+
+  const onMove = (event) => {
+    cancelAnimationFrame(raf)
+    raf = requestAnimationFrame(() => {
+      for (const dot of dots) {
+        const rect = dot.getBoundingClientRect()
+        const dist = Math.hypot(
+          event.clientX - (rect.left + rect.width / 2),
+          event.clientY - (rect.top + rect.height / 2),
+        )
+        if (dist < radius) {
+          const f = 1 - dist / radius
+          animate(dot, {
+            scale: 1 + f * boost,
+            opacity: 0.6 + f * 0.4,
+            duration,
+            ease: 'outQuad',
+          })
+        }
+      }
+    })
+  }
+
+  window.addEventListener('pointermove', onMove)
+  return () => {
+    window.removeEventListener('pointermove', onMove)
+    cancelAnimationFrame(raf)
   }
 }

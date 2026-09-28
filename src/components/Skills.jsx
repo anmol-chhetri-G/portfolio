@@ -1,23 +1,33 @@
-import { skills } from '../data/portfolio'
+import { profile } from '../data/portfolio'
 
 export default function Skills() {
   return (
-    <section className="section" id="skills">
-      <h2 className="section__title">Skills</h2>
-
-      <div className="skills">
-        {skills.map((group) => (
-          <div className="skills__group" key={group.group}>
-            <h3 className="skills__label">{group.group}</h3>
-            <ul className="skills__items">
-              {group.items.map((item) => (
-                <li className="tag" key={item}>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+    <section id="skills" data-reveal>
+      <div className="shell">
+        <div className="kicker">03 · skills & certs</div>
+        <h2>Tools of the trade.</h2>
+        <div className="skills-grid">
+          {profile.skills.map((group) => (
+            <div className="skill-card" key={group.label}>
+              <h3>{group.label}</h3>
+              <div className="tags">
+                {group.items.map((item) => (
+                  <span className="tag" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <h2 style={{ marginTop: 64, fontSize: 24 }}>
+          Certifications & Achievements
+        </h2>
+        <ul className="cert-list">
+          {profile.certs.map((cert) => (
+            <li key={cert}>{cert}</li>
+          ))}
+        </ul>
       </div>
     </section>
   )
