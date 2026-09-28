@@ -87,8 +87,6 @@ code {
   border-radius: 50%;
   background: var(--accent-dot);
   opacity: 0.35;
-  /* Initial scale is set inline per-dot to match the animation's minimum. */
-  will-change: transform, opacity;
 }
 
 /* ============================================================

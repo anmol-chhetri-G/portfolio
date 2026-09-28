@@ -1,45 +1,31 @@
 /**
  * Verification for the portfolio.
  *
- * Two servers are needed (both already in package.json scripts):
- *   npm run build && npm run preview &   # production build  -> http://127.0.0.1:4173
- *   npm run dev &                         # source + harness  -> http://127.0.0.1:5174
+ * One server is needed (already in package.json scripts):
+ *   npm run build && npm run preview &   # production build -> http://127.0.0.1:4173
  *   node scripts/verify.mjs
  *
- * Needs `npm i -D playwright` plus a full Chromium (`npx playwright install
- * chromium`; the headless *shell* build must not be used — it never fires
- * requestAnimationFrame, which silently freezes every JS animation).
+ * Needs `npm i -D playwright` (`npx playwright install chromium` for the
+ * bundled build). No full Chromium required — the grid is static, so nothing
+ * depends on requestAnimationFrame.
  *
  * What it checks:
  *  A. Production page: grid renders 13x13, hero/projects copy, no console errors.
- *  B. The idle pulse is live (scale + opacity). Scroll reveal activates sections.
- *  C. Animation semantics (deterministic, via tests/gridPulse.harness.html —
- *     the timeline is seeked, so no rAF dependence): centre flashes first,
- *     corners last ~1100ms later, every dot pings to the 1.6 peak.
- *  D. prefers-reduced-motion holds the grid still.
- *  E. SPA routing: deep links render, unknown slugs/routes are friendly.
- *  F. dist/ has no _redirects file (Cloudflare Workers rejects the Pages-style
+ *  B. The dot grid is static (no animation, no toggle) and scroll reveal
+ *     activates sections; experience, verified certifications, hobby repos.
+ *  C. SPA routing: deep links render, unknown slugs/routes are friendly.
+ *  D. dist/ has no _redirects file (Cloudflare Workers rejects the Pages-style
  *     `/* /index.html 200` splat as an infinite loop — SPA fallback comes from
  *     `not_found_handling: "single-page-application"` in wrangler.jsonc
- *     instead), and the SEO files (robots.txt, sitemap.xml) ship.
+ *     instead), and the SEO files (robots.txt, sitemap.xml, og-image.jpg) ship.
  */
 import { chromium } from 'playwright'
 import { readFile } from 'node:fs/promises'
 
 const PREVIEW = process.env.BASE_URL ?? 'http://127.0.0.1:4173'
-const DEV = process.env.DEV_URL ?? 'http://127.0.0.1:5174'
 const COLS = 13
 const ROWS = 13
 const COUNT = COLS * ROWS
-const CENTRE = Math.floor(ROWS / 2) * COLS + Math.floor(COLS / 2) // index 84
-const CORNER = 0
-const MIN_SCALE = 0.7
-const MAX_SCALE = 1.6
-const STAGGER_MS = 130
-// animejs grid stagger measures Euclidean distance from the centre, so the
-// corner's flash starts 130ms x sqrt(6^2 + 6^2) ~= 1104ms in, peaking 300ms
-// later (half of the 600ms flash).
-const EXPECTED_SPREAD_MS = STAGGER_MS * Math.hypot((COLS - 1) / 2, (ROWS - 1) / 2)
 
 const results = []
 function check(name, pass, detail = '') {
@@ -47,18 +33,14 @@ function check(name, pass, detail = '') {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`)
 }
 
-// Inline transform of every dot (what animejs writes to el.style.transform).
 const readTransforms = (page) =>
   page.evaluate(() => [...document.querySelectorAll('.dot')].map((d) => d.style.transform))
 
-const browser = await chromium.launch({ channel: 'chromium' })
+const browser = await chromium.launch()
 
 try {
   // ---- A. Production page --------------------------------------------------
-  const page = await browser.newPage({
-    viewport: { width: 1280, height: 900 },
-    reducedMotion: 'no-preference',
-  })
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
@@ -99,47 +81,21 @@ try {
     shape.projects.join(' | '),
   )
 
-  // ---- B1. The idle pulse is live ------------------------------------------
-  const live = await page.evaluate(
-    ({ sampleMs }) =>
-      new Promise((resolve) => {
-        const dots = [...document.querySelectorAll('.dot')]
-        const scaleOf = (el) => {
-          const m = /scale\(\s*([-\d.e]+)/.exec(el.style.transform)
-          return m ? parseFloat(m[1]) : 1
-        }
-        let lo = Infinity
-        let hi = -Infinity
-        const opacities = new Set()
-        let frames = 0
-        const t0 = performance.now()
-        const step = () => {
-          for (const d of dots) {
-            const s = scaleOf(d)
-            if (s < lo) lo = s
-            if (s > hi) hi = s
-            opacities.add(d.style.opacity)
-          }
-          frames++
-          if (performance.now() - t0 < sampleMs) requestAnimationFrame(step)
-          else resolve({ lo, hi, frames, opDistinct: opacities.size })
-        }
-        requestAnimationFrame(step)
-      }),
-    { sampleMs: 1500 },
-  )
+  // ---- B. Static grid, reveal, content --------------------------------------
+  const first = await readTransforms(page)
+  await page.waitForTimeout(1200)
+  const second = await readTransforms(page)
   check(
-    'production pulse is live',
-    live.frames > 10 && live.hi > 1.0 && live.lo <= MIN_SCALE + 0.01,
-    `${live.frames} frames, scale ${live.lo.toFixed(3)} … ${live.hi.toFixed(3)}`,
-  )
-  check(
-    'production pulse also breathes opacity',
-    live.opDistinct > 3,
-    `${live.opDistinct} distinct opacity values`,
+    'dot grid is static (no animation)',
+    first.length === COUNT && first.every((t, i) => t === second[i]),
+    `${first.length} dots, none changed over 1200ms`,
   )
 
-  // ---- B3. Scroll reveal ----------------------------------------------------
+  const toggleCount = await page.evaluate(
+    () => document.querySelectorAll('.motion-toggle').length,
+  )
+  check('no motion toggle rendered', toggleCount === 0)
+
   await page.evaluate(() => document.querySelector('#experience').scrollIntoView({ block: 'start' }))
   await page.waitForTimeout(1000)
   const revealed = await page.evaluate(() =>
@@ -147,7 +103,6 @@ try {
   )
   check('scroll reveal activates sections', revealed, '#experience.in')
 
-  // ---- B4. Experience + certifications --------------------------------------
   const content = await page.evaluate(() => ({
     jobs: [...document.querySelectorAll('#experience .job h3')].map((h) => h.textContent),
     certLinks: [...document.querySelectorAll('.cert-list li a')].map((a) => a.href),
@@ -173,65 +128,7 @@ try {
     content.tinkering.join(' | '),
   )
 
-  // ---- C. Animation semantics (deterministic, via the harness) --------------
-  const harness = await browser.newPage()
-  const harnessErrors = []
-  harness.on('pageerror', (e) => harnessErrors.push(e.message))
-  await harness.goto(`${DEV}/tests/gridPulse.harness.html`, { waitUntil: 'networkidle' })
-  await harness.waitForFunction(() => window.__ready === true)
-
-  const setup = await harness.evaluate(() => window.__harness.setup({ loop: false }))
-  check('harness builds a 169-dot timeline', setup.count === COUNT, `${setup.count} dots`)
-
-  const prof = await harness.evaluate(() => window.__harness.profile({}))
-
-  check(
-    'scale spans the configured range',
-    prof.lo >= MIN_SCALE - 0.001 && prof.max[CENTRE] >= MAX_SCALE - 0.02,
-    `min ${prof.lo.toFixed(3)} … centre peak ${prof.max[CENTRE].toFixed(3)} (target ${MIN_SCALE} … ${MAX_SCALE})`,
-  )
-
-  // Sonar: every dot runs the same flash keyframes, so all peak alike.
-  const allFlash = prof.max.every((m) => m >= MAX_SCALE - 0.05)
-  check(
-    'every dot flashes to the peak',
-    allFlash,
-    `lowest peak ${Math.min(...prof.max).toFixed(3)} (target ${MAX_SCALE})`,
-  )
-
-  // The ring is proven by ordering: centre flashes first, corners last.
-  const movedTimes = prof.firstMove.filter((t) => t >= 0)
-  const centreT = prof.firstMove[CENTRE]
-  const cornerT = prof.firstMove[CORNER]
-  const maxT = Math.max(...movedTimes)
-  check('centre dot flashes at the start', centreT >= 0 && centreT <= 50, `t=${centreT}ms`)
-  check(
-    'corner dot flashes last, ~1100ms in',
-    cornerT >= 0 && Math.abs(cornerT - EXPECTED_SPREAD_MS) < 150,
-    `t=${cornerT}ms (expect ~${EXPECTED_SPREAD_MS.toFixed(0)}ms)`,
-  )
-  check(
-    'ring ordering: centre first, corner last',
-    movedTimes.length === COUNT &&
-      centreT === Math.min(...movedTimes) &&
-      maxT === Math.max(...movedTimes),
-    `${movedTimes.length}/${COUNT} dots flash; first t=${centreT}ms, last t=${maxT}ms`,
-  )
-  check('harness console is clean', harnessErrors.length === 0, harnessErrors.join(' | '))
-
-  // ---- D. Reduced motion ---------------------------------------------------
-  const still = await browser.newPage({ reducedMotion: 'reduce' })
-  await still.goto(`${PREVIEW}/`, { waitUntil: 'networkidle' })
-  const before = await readTransforms(still)
-  await still.waitForTimeout(900)
-  const after = await readTransforms(still)
-  check(
-    'prefers-reduced-motion holds the grid still',
-    before.length === COUNT && before.every((t, i) => t === after[i]),
-    `${before.length} dots, none changed`,
-  )
-
-  // ---- E. SPA routing ------------------------------------------------------
+  // ---- C. SPA routing ------------------------------------------------------
   const deep = await browser.newPage()
   const res = await deep.goto(`${PREVIEW}/projects/network-ids`, { waitUntil: 'networkidle' })
   const deepState = await deep.evaluate(() => ({
@@ -260,7 +157,7 @@ try {
   const nr = await deep.evaluate(() => document.querySelector('h1')?.textContent)
   check('unknown route renders a friendly page', nr === 'Page not found', `h1 "${nr}"`)
 
-  // ---- F. Deploy artifacts ---------------------------------------------------
+  // ---- D. Deploy artifacts ---------------------------------------------------
   // No _redirects may ship: Cloudflare Workers (Static Assets) rejects the
   // Pages-style `/* /index.html 200` splat as an infinite loop (it matches
   // /index.html itself). SPA fallback is provided by
@@ -277,7 +174,6 @@ try {
     redirects === null ? 'absent, SPA fallback via wrangler.jsonc' : JSON.stringify(redirects.trim()),
   )
 
-  // ---- G. SEO files ship in dist -------------------------------------------
   let robots = ''
   let sitemap = ''
   try {

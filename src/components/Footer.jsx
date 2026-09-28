@@ -7,7 +7,7 @@ export default function Footer() {
         <span>
           © {new Date().getFullYear()} {profile.name}
         </span>
-        <span>built with react · vite · animejs</span>
+        <span>built with react · vite</span>
       </div>
     </footer>
   )

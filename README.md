@@ -2,10 +2,9 @@
 
 React + Vite single-page portfolio, deployed on Cloudflare Workers. Light,
 clean theme with an indigo accent (`src/styles/global.css`): greeting hero
-with an arch visual, card sections, navy footer. The one ambient animation
-is a faint fullscreen 13×13 dot grid running an animejs centre-ripple pulse
-(`src/lib/gridPulse.js`); sections fade in on scroll via a one-shot
-IntersectionObserver. No other motion on the page.
+with an arch visual, card sections, navy footer. The dot grid is a static
+CSS backdrop — no animation anywhere except subtle scroll reveals, so there
+is nothing to pause and `prefers-reduced-motion` needs no special handling.
 
 ## Edit your content
 
@@ -22,24 +21,17 @@ npm run dev        # http://localhost:5173
 
 ## Verify before deploying
 
-`scripts/verify.mjs` runs 31 headless-browser checks: the 13×13 grid, the
-live sonar pulse (centre-first ring, 0.7 → 1.6 flash with cyan color),
-scroll reveal, experience + verified certifications + hobby repos,
-reduced-motion support, SPA routing (including the new source-repo links),
-the absence of `_redirects` (fatal to the Workers deploy), and the SEO files (`robots.txt`,
-`sitemap.xml`). It needs two
-servers plus Playwright with a full Chromium build (the headless *shell*
-never fires `requestAnimationFrame`, which freezes every JS animation):
+`scripts/verify.mjs` runs 23 headless-browser checks: the static 13×13 grid,
+scroll reveal, experience + verified certifications + hobby repos, SPA
+routing (including source-repo links), the absence of `_redirects` (fatal
+to the Workers deploy), and the SEO files (`robots.txt`, `sitemap.xml`,
+`og-image.jpg`). It needs one server plus Playwright:
 
 ```bash
 npm run build && npm run preview &   # production build -> :4173
-npm run dev &                        # source + test harness -> :5174
 npm i -D playwright && npx playwright install chromium
 npm run verify
 ```
-
-The animation harness at `tests/gridPulse.harness.html` is dev-only — it is
-never included in the production build (`dist` contains only `index.html`).
 
 ## Deploy to Cloudflare (Workers Static Assets)
 
