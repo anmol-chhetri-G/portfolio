@@ -2,7 +2,7 @@ import { profile } from '../data/portfolio'
 
 export default function Experience() {
   return (
-    <section id="experience" data-reveal>
+    <section id="experience" className="tint" data-reveal>
       <div className="shell">
         <div className="kicker">02 · experience</div>
         <h2>Doing the work, not just studying it.</h2>

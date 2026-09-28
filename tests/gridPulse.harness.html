@@ -49,7 +49,7 @@
         setup(options = {}) {
           if (controller) { controller.destroy(); controller = null }
           gridSize = options.grid ?? [13, 13]
-          minScale = options.scaleRange ? options.scaleRange[1] : 0.65
+          minScale = options.minScale ?? 0.7
           buildDots()
           controller = initGridPulse('.dot', options)
           return {
@@ -76,6 +76,7 @@
           const n = dotEls.length
           if (untilMs === undefined) untilMs = controller.timeline.iterationDuration
           const firstMove = new Array(n).fill(-1)
+          const max = new Array(n).fill(-Infinity)
           let lo = Infinity
           let hi = -Infinity
           for (let t = 0; t <= untilMs; t += stepMs) {
@@ -84,14 +85,11 @@
             for (let i = 0; i < n; i++) {
               if (s[i] < lo) lo = s[i]
               if (s[i] > hi) hi = s[i]
+              if (s[i] > max[i]) max[i] = s[i]
               if (firstMove[i] < 0 && s[i] - minScale > eps) firstMove[i] = t
             }
           }
-          // Per-dot peak = value reached at the end of the forward pass.
-          controller.timeline.seek(controller.timeline.iterationDuration)
-          const peak = scales()
-          controller.timeline.seek(0)
-          return { firstMove, peak, lo, hi }
+          return { firstMove, max, lo, hi }
         },
 
         destroy() {

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import {
   DEFAULT_GRID,
-  DEFAULT_SCALE_RANGE,
+  DEFAULT_MIN_SCALE,
   countDots,
   initGridPulse,
   prefersReducedMotion,
@@ -20,7 +20,7 @@ export default function DotGrid() {
   const containerRef = useRef(null)
   const [columns, rows] = DEFAULT_GRID
   const total = countDots(DEFAULT_GRID)
-  const minScale = DEFAULT_SCALE_RANGE[1]
+  const minScale = DEFAULT_MIN_SCALE
 
   useEffect(() => {
     // Respect the OS "reduce motion" setting: hold the grid still.

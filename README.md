@@ -22,8 +22,8 @@ npm run dev        # http://localhost:5173
 
 ## Verify before deploying
 
-`scripts/verify.mjs` runs 32 headless-browser checks: the 13×13 grid, the
-live pulse (centre-first ordering, 0.65 → 1.3 scale range, opacity breathing),
+`scripts/verify.mjs` runs 31 headless-browser checks: the 13×13 grid, the
+live sonar pulse (centre-first ring, 0.7 → 1.6 flash with cyan color),
 scroll reveal, experience + verified certifications + hobby repos,
 reduced-motion support, SPA routing (including the new source-repo links),
 the absence of `_redirects` (fatal to the Workers deploy), and the SEO files (`robots.txt`,

@@ -14,8 +14,8 @@
  *  A. Production page: grid renders 13x13, hero/projects copy, no console errors.
  *  B. The idle pulse is live (scale + opacity). Scroll reveal activates sections.
  *  C. Animation semantics (deterministic, via tests/gridPulse.harness.html —
- *     the timeline is seeked, so no rAF dependence): centre ripples first,
- *     outer ring ~1s later, scale spans the configured [1.3, 0.65] range.
+ *     the timeline is seeked, so no rAF dependence): centre flashes first,
+ *     corners last ~1100ms later, every dot pings to the 1.6 peak.
  *  D. prefers-reduced-motion holds the grid still.
  *  E. SPA routing: deep links render, unknown slugs/routes are friendly.
  *  F. dist/ has no _redirects file (Cloudflare Workers rejects the Pages-style
@@ -33,12 +33,12 @@ const ROWS = 13
 const COUNT = COLS * ROWS
 const CENTRE = Math.floor(ROWS / 2) * COLS + Math.floor(COLS / 2) // index 84
 const CORNER = 0
-const MID_RING = 3 * COLS + Math.floor(COLS / 2) // row 3, col 6 — 3 units out
-const MIN_SCALE = 0.65
-const MAX_SCALE = 1.3
+const MIN_SCALE = 0.7
+const MAX_SCALE = 1.6
 const STAGGER_MS = 130
 // animejs grid stagger measures Euclidean distance from the centre, so the
-// corner-to-centre delay is 130ms x sqrt(6^2 + 6^2) ~= 1103ms.
+// corner's flash starts 130ms x sqrt(6^2 + 6^2) ~= 1104ms in, peaking 300ms
+// later (half of the 600ms flash).
 const EXPECTED_SPREAD_MS = STAGGER_MS * Math.hypot((COLS - 1) / 2, (ROWS - 1) / 2)
 
 const results = []
@@ -187,46 +187,35 @@ try {
 
   check(
     'scale spans the configured range',
-    prof.lo >= MIN_SCALE - 0.001 && prof.peak[CENTRE] >= MAX_SCALE - 0.02,
-    `min ${prof.lo.toFixed(3)} … centre peak ${prof.peak[CENTRE].toFixed(3)} (target ${MIN_SCALE} … ${MAX_SCALE})`,
+    prof.lo >= MIN_SCALE - 0.001 && prof.max[CENTRE] >= MAX_SCALE - 0.02,
+    `min ${prof.lo.toFixed(3)} … centre peak ${prof.max[CENTRE].toFixed(3)} (target ${MIN_SCALE} … ${MAX_SCALE})`,
   )
 
-  // Peaks must fall off radially: centre highest, mid-ring in between, edge lowest.
-  const radial =
-    prof.peak[CENTRE] > prof.peak[MID_RING] && prof.peak[MID_RING] > prof.peak[CORNER]
+  // Sonar: every dot runs the same flash keyframes, so all peak alike.
+  const allFlash = prof.max.every((m) => m >= MAX_SCALE - 0.05)
   check(
-    'peaks fall off radially from the centre',
-    radial,
-    `centre ${prof.peak[CENTRE].toFixed(3)}, mid-ring ${prof.peak[MID_RING].toFixed(3)}, corner ${prof.peak[CORNER].toFixed(3)}`,
+    'every dot flashes to the peak',
+    allFlash,
+    `lowest peak ${Math.min(...prof.max).toFixed(3)} (target ${MAX_SCALE})`,
   )
 
-  // The [1.3, 0.65] range is mapped over the full centre-to-corner radius, so
-  // the four corner dots target exactly their start scale and never move.
-  const cornerStatic =
-    prof.firstMove[CORNER] === -1 && Math.abs(prof.peak[CORNER] - MIN_SCALE) < 0.001
-  check(
-    'corners rest at the start scale by design',
-    cornerStatic,
-    `corner peak ${prof.peak[CORNER].toFixed(4)}, never departs`,
-  )
-
-  // The ripple is proven by ordering: centre moves first, the outer ring last.
-  // Farthest *moving* dots sit at distance sqrt(61) ~= 7.81, i.e. ~1015ms in.
+  // The ring is proven by ordering: centre flashes first, corners last.
   const movedTimes = prof.firstMove.filter((t) => t >= 0)
   const centreT = prof.firstMove[CENTRE]
+  const cornerT = prof.firstMove[CORNER]
   const maxT = Math.max(...movedTimes)
-  check('centre dot moves at the start', centreT >= 0 && centreT <= 50, `t=${centreT}ms`)
+  check('centre dot flashes at the start', centreT >= 0 && centreT <= 50, `t=${centreT}ms`)
   check(
-    'outer ring moves ~1s after the centre',
-    maxT >= 850 && maxT <= 1200,
-    `last movement t=${maxT}ms (expect ~1015ms of ~${EXPECTED_SPREAD_MS.toFixed(0)}ms span)`,
+    'corner dot flashes last, ~1100ms in',
+    cornerT >= 0 && Math.abs(cornerT - EXPECTED_SPREAD_MS) < 150,
+    `t=${cornerT}ms (expect ~${EXPECTED_SPREAD_MS.toFixed(0)}ms)`,
   )
   check(
-    'ripple ordering: centre first, edge last',
-    movedTimes.length > COUNT / 2 &&
+    'ring ordering: centre first, corner last',
+    movedTimes.length === COUNT &&
       centreT === Math.min(...movedTimes) &&
       maxT === Math.max(...movedTimes),
-    `${movedTimes.length}/${COUNT} dots visibly move; first t=${centreT}ms, last t=${maxT}ms`,
+    `${movedTimes.length}/${COUNT} dots flash; first t=${centreT}ms, last t=${maxT}ms`,
   )
   check('harness console is clean', harnessErrors.length === 0, harnessErrors.join(' | '))
 
