@@ -10,6 +10,9 @@ export default function Contact() {
           <a className="btn btn-primary" href={`mailto:${profile.email}`}>
             {profile.email}
           </a>
+          <a className="btn btn-ghost" href={`tel:${profile.phone.replace(/\s/g, '')}`}>
+            {profile.phone}
+          </a>
           <a
             className="btn btn-ghost"
             href={profile.github}

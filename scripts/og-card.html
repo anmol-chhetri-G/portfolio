@@ -1,0 +1,81 @@
+<!doctype html>
+<!-- Build-time only: screenshot this at 1200x630 to regenerate public/og-image.png.
+     Not linked from the site; never shipped in dist/. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        width: 1200px;
+        height: 630px;
+        display: flex;
+        align-items: center;
+        font-family: 'Space Grotesk', system-ui, sans-serif;
+        color: #0f172a;
+        background:
+          radial-gradient(600px 420px at 8% 15%, rgba(99, 102, 241, 0.14), transparent 60%),
+          radial-gradient(700px 500px at 95% 85%, rgba(168, 85, 247, 0.12), transparent 60%),
+          #ffffff;
+        overflow: hidden;
+      }
+      .copy { padding: 0 40px 0 96px; flex: 1; }
+      .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px;
+        color: #5b6478;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 104px;
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+      }
+      h1 span {
+        background: linear-gradient(120deg, #4f46e5 20%, #7c3aed 85%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .role {
+        margin-top: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #4338ca;
+      }
+      .tags {
+        margin-top: 28px;
+        display: flex;
+        gap: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 20px;
+        color: #0f172a;
+      }
+      .tags span {
+        background: #eef0ff;
+        border-radius: 6px;
+        padding: 8px 16px;
+      }
+      .photo {
+        width: 420px;
+        height: 630px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="copy">
+      <p class="eyebrow">Hello, I&apos;m</p>
+      <h1>Anmol Singh <span>Chhetri</span></h1>
+      <p class="role">Cybersecurity</p>
+      <div class="tags"><span>SIEM triage</span><span>Splunk</span><span>Python</span></div>
+    </div>
+    <img class="photo" src="../src/assets/profile.jpg" alt="" />
+  </body>
+</html>

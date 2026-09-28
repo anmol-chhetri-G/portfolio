@@ -298,6 +298,33 @@ try {
     /* handled by the checks below */
   }
   check('dist/robots.txt present', /User-agent: \*/.test(robots), robots.split('\n')[0] ?? '')
+
+  // OG social card: real file in dist + meta pointing at it, no placeholders.
+  let ogImage = null
+  try {
+    ogImage = await readFile(new URL('../dist/og-image.jpg', import.meta.url))
+  } catch {
+    ogImage = null
+  }
+  const head = await page.evaluate(() => ({
+    canonical: document.querySelector('link[rel="canonical"]')?.href ?? '',
+    ogUrl: document.querySelector('meta[property="og:url"]')?.content ?? '',
+    ogImage: document.querySelector('meta[property="og:image"]')?.content ?? '',
+  }))
+  check(
+    'dist/og-image.jpg ships and is a real JPEG',
+    ogImage !== null &&
+      ogImage[0] === 0xff &&
+      ogImage[1] === 0xd8 &&
+      ogImage.length > 10000,
+    ogImage ? `${(ogImage.length / 1024).toFixed(0)} KB JPEG` : 'missing',
+  )
+  check(
+    'canonical + OG tags use the real domain',
+    !/YOUR-DOMAIN/.test(head.canonical + head.ogUrl + head.ogImage) &&
+      head.ogImage.endsWith('/og-image.jpg'),
+    head.canonical,
+  )
   check(
     'dist/sitemap.xml lists the project URLs',
     ['network-ids', 'steganography', 'keylogger', 'password-manager'].every((slug) =>

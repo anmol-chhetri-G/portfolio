@@ -22,7 +22,7 @@ npm run dev        # http://localhost:5173
 
 ## Verify before deploying
 
-`scripts/verify.mjs` runs 30 headless-browser checks: the 13×13 grid, the
+`scripts/verify.mjs` runs 32 headless-browser checks: the 13×13 grid, the
 live pulse (centre-first ordering, 0.65 → 1.3 scale range, opacity breathing),
 scroll reveal, experience + verified certifications + hobby repos,
 reduced-motion support, SPA routing (including the new source-repo links),

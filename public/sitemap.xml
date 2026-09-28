@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- TODO: replace YOUR-DOMAIN with your deployed URL -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://YOUR-DOMAIN.pages.dev/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://YOUR-DOMAIN.pages.dev/projects/network-ids</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://YOUR-DOMAIN.pages.dev/projects/steganography</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://YOUR-DOMAIN.pages.dev/projects/keylogger</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://YOUR-DOMAIN.pages.dev/projects/password-manager</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portfolio.anmolsinghchetri34.workers.dev/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://portfolio.anmolsinghchetri34.workers.dev/projects/network-ids</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portfolio.anmolsinghchetri34.workers.dev/projects/steganography</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portfolio.anmolsinghchetri34.workers.dev/projects/keylogger</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://portfolio.anmolsinghchetri34.workers.dev/projects/password-manager</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
