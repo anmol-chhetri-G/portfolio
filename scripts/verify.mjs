@@ -18,8 +18,10 @@
  *     outer ring ~1s later, scale spans the configured [1.3, 0.65] range.
  *  D. prefers-reduced-motion holds the grid still.
  *  E. SPA routing: deep links render, unknown slugs/routes are friendly.
- *  F. dist/_redirects ships so Cloudflare Pages serves deep links, and the
- *     SEO files (robots.txt, sitemap.xml) ship too.
+ *  F. dist/ has no _redirects file (Cloudflare Workers rejects the Pages-style
+ *     `/* /index.html 200` splat as an infinite loop — SPA fallback comes from
+ *     `not_found_handling: "single-page-application"` in wrangler.jsonc
+ *     instead), and the SEO files (robots.txt, sitemap.xml) ship.
  */
 import { chromium } from 'playwright'
 import { readFile } from 'node:fs/promises'
@@ -72,6 +74,7 @@ try {
       rows: new Set(dots.map((d) => Math.round(d.getBoundingClientRect().top))).size,
       fixed: getComputedStyle(grid).position === 'fixed',
       heading: document.querySelector('h1')?.textContent,
+      photo: document.querySelector('.arch img')?.getAttribute('src'),
       projects: [...document.querySelectorAll('.project h3')].map((h) => h.textContent),
     }
   })
@@ -84,6 +87,11 @@ try {
   )
   check('grid is a fixed fullscreen backdrop', shape.fixed, 'position: fixed')
   check('hero renders the headline', shape.heading === 'Anmol Singh Chhetri', `h1 "${shape.heading}"`)
+  check(
+    'hero shows the profile photo',
+    typeof shape.photo === 'string' && shape.photo.includes('profile'),
+    shape.photo,
+  )
   check(
     'four projects render',
     shape.projects.length === 4 &&
@@ -263,17 +271,21 @@ try {
   const nr = await deep.evaluate(() => document.querySelector('h1')?.textContent)
   check('unknown route renders a friendly page', nr === 'Page not found', `h1 "${nr}"`)
 
-  // ---- F. Cloudflare redirect rule -----------------------------------------
-  let redirects = ''
+  // ---- F. Deploy artifacts ---------------------------------------------------
+  // No _redirects may ship: Cloudflare Workers (Static Assets) rejects the
+  // Pages-style `/* /index.html 200` splat as an infinite loop (it matches
+  // /index.html itself). SPA fallback is provided by
+  // `not_found_handling: "single-page-application"` in wrangler.jsonc instead.
+  let redirects = null
   try {
     redirects = await readFile(new URL('../dist/_redirects', import.meta.url), 'utf8')
   } catch {
-    /* handled by the check below */
+    redirects = null
   }
   check(
-    'dist/_redirects present for Cloudflare Pages',
-    /\/\*\s+\/index\.html\s+200/.test(redirects),
-    JSON.stringify(redirects.trim()),
+    'dist/ has no _redirects (would fail the Workers deploy)',
+    redirects === null,
+    redirects === null ? 'absent, SPA fallback via wrangler.jsonc' : JSON.stringify(redirects.trim()),
   )
 
   // ---- G. SEO files ship in dist -------------------------------------------
