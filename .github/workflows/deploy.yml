@@ -42,6 +42,11 @@ jobs:
       SLEEP_SCRIPT: /home/anmol/portfolio/actions-runner/deploymentsafe_sleep.sh
 
     steps:
+      # The runner host has no Node installed (Docker used to supply it).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Preflight
         run: |
           set -euo pipefail
