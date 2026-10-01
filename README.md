@@ -44,6 +44,8 @@ git add -A && git commit -m "describe your change"
 git push
 ```
 
+> For cloudflare we will require to link with workers free account subdomain.
+
 Deep links like `/projects/network-ids` resolve to the SPA via
 `not_found_handling: "single-page-application"` in `wrangler.jsonc` — do
 **not** add a `public/_redirects` file: Workers rejects the Pages-style
