@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 
-# Two deploys must never fight over the same working tree / compose project.
+# Two deploys must never fight over the same working tree.
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 30
 
     # ---------------------------------------------------------------------
-    # Everything tunable lives here. Change these three lines, nothing below.
+    # Everything tunable lives here. Change these lines, nothing below.
     # ---------------------------------------------------------------------
     env:
       # The live git clone on the runner host.
@@ -35,11 +35,6 @@ jobs:
       # actions-runner/_work/anmol-chhetri-G/portfolio/portfolio and the two
       # trees would immediately drift apart.
       DEPLOY_DIR: /home/anmol/portfolio
-
-      # Absolute path to the compose file. Leave empty ('') to auto-detect
-      # docker-compose.yml / compose.yml inside DEPLOY_DIR. If neither
-      # exists the deploy fails with instructions rather than doing nothing.
-      COMPOSE_FILE: ''
 
       # Optional pre-deploy cooldown helper. Skipped with a notice if it is
       # missing or not executable. If this is actually a post-deploy wait,
@@ -60,7 +55,7 @@ jobs:
           echo "Deploy dir : $DEPLOY_DIR"
           echo "Host       : $(hostname)"
           echo "Runner pwd : $PWD"
-          docker --version
+          node --version
 
       - name: Pre-deploy sleep
         run: |
@@ -89,72 +84,9 @@ jobs:
           # running runner service with them.
           git log --oneline -1
 
-      - name: Resolve compose project
-        id: compose
+      - name: Build
         run: |
           set -euo pipefail
           cd "$DEPLOY_DIR"
-
-          if [ -n "$COMPOSE_FILE" ]; then
-            if [ ! -f "$COMPOSE_FILE" ]; then
-              echo "::error::COMPOSE_FILE='$COMPOSE_FILE' does not exist."
-              exit 1
-            fi
-            file="$COMPOSE_FILE"
-          else
-            file=""
-            for name in docker-compose.yml docker-compose.yaml compose.yml compose.yaml; do
-              if [ -f "$name" ]; then file="$name"; break; fi
-            done
-            if [ -z "$file" ]; then
-              echo "::error::No compose file found in $DEPLOY_DIR."
-              echo "::error::Set COMPOSE_FILE at the top of this workflow to its absolute path."
-              echo "::error::Contents of $DEPLOY_DIR:"
-              ls -la
-              exit 1
-            fi
-          fi
-
-          echo "file=$file" >> "$GITHUB_OUTPUT"
-          echo "Compose file: $file"
-          echo "Services:"
-          docker compose -f "$file" config --services
-
-      - name: Build and start
-        run: |
-          set -euo pipefail
-          cd "$DEPLOY_DIR"
-          docker compose -f "${{ steps.compose.outputs.file }}" up -d --build --remove-orphans
-
-      - name: Verify
-        run: |
-          set -euo pipefail
-          cd "$DEPLOY_DIR"
-          file="${{ steps.compose.outputs.file }}"
-
-          # Give freshly started containers a moment to leave "created".
-          for i in $(seq 1 12); do
-            if [ -n "$(docker compose -f "$file" ps --status running -q)" ]; then
-              break
-            fi
-            echo "waiting for containers ($i/12)..."
-            sleep 5
-          done
-
-          docker compose -f "$file" ps
-
-          if [ -z "$(docker compose -f "$file" ps --status running -q)" ]; then
-            echo "::error::No containers are running after deploy."
-            docker compose -f "$file" logs --tail 50
-            exit 1
-          fi
-
-      - name: Prune unused images
-        run: |
-          set -euo pipefail
-          docker image prune -f
-          docker container prune -f
-
-
-
-
+          npm ci
+          npm run build
