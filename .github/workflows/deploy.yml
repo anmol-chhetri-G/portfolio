@@ -27,18 +27,8 @@ jobs:
     # Everything tunable lives here. Change these lines, nothing below.
     # ---------------------------------------------------------------------
     env:
-      # The live git clone on the runner host.
-      #
-      # This is the SAME directory the runner is installed in, which is why
-      # this workflow deliberately does NOT use actions/checkout: the
-      # self-hosted runner would clone a second, nested copy into
-      # actions-runner/_work/anmol-chhetri-G/portfolio/portfolio and the two
-      # trees would immediately drift apart.
       DEPLOY_DIR: /home/anmol/portfolio
 
-      # Optional pre-deploy cooldown helper. Skipped with a notice if it is
-      # missing or not executable. If this is actually a post-deploy wait,
-      # move the "Pre-deploy sleep" step to just above "Verify".
       SLEEP_SCRIPT: /home/anmol/portfolio/actions-runner/deploymentsafe_sleep.sh
 
     steps:
